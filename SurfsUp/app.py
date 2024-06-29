@@ -40,34 +40,73 @@ app = Flask(__name__)
 #################################################
 # Flask Routes
 #################################################
-/api/v1.0/precipitation
-/api/v1.0/stations
-/api/v1.0/temp/<start>
-/api?v1.0/temp/<start>/<end>
 
-#################################################
-# Database Setup
-#################################################
-
-
-# reflect an existing database into a new model
-
-# reflect the tables
+@app.route("/")
+def homepage():
+    """List all available api routes."""
+    return (
+        f"Available Routes:<br/>"
+        f"/api/v1.0/precipitation"
+        f"/api/v1.0/temp/<start>"
+        f"/api/v1.0/stations"
+        f"/api?v1.0/temp/<start>/<end>"
+    )
 
 
-# Save references to each table
+
+
+
+@app.route(" /api/v1.0/precipitation")
+def precipitation():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    # Convert the query results from your precipitation analysis (i.e. retrieve only the last 12 months of data) to a
+ ## dictionary using date as the key and prcp as the value
+    year_ago = dt.date(2017,8,23) - dt.timedelta(days=365)
+
+    results = session.query(measurement.date,measurement.prcp).filter(measurement.date >=year_ago)
+
+    session.close()
+
+
+    return jsonify(results)
+
+
+@app.route("/api/v1.0/stations")
+def station():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return a JSON list of stations from the dataset"""
+    # Query all stations
+    total_stations= session.query(func.count(station.station)).all()
+
+    session.close()
+
+    return jsonify(total_stations)
+
+@app.route(" /api/v1.0/tobs")
+def temperature():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+# Query the dates and temperature observations of the most-active station for the previous year of data.
+    Results = session.query(measurement.tobs).filter(measurement.station == 'USC00519281').filter(measurement.date >= year_ago).all()
+
+    session.close()
+
+    return jsonify(Results)
+
+
+@app.route(" /api/v1.0/<start>") AND (/api/v1.0/<start>/<end>)
+def summary_temperature():
+lowest_temp, highest_temp, avg_temp = results[0]
 
 
 # Create our session (link) from Python to the DB
+session = Session(engine)
 
+return jsonify(Results)
 
-#################################################
-# Flask Setup
-#################################################
-
-
-
-
-#################################################
-# Flask Routes
-#################################################
+if __name__ == '__main__':
+    app.run(debug=True)
