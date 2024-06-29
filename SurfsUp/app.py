@@ -42,10 +42,10 @@ app = Flask(__name__)
 #################################################
 
 @app.route("/")
-def homepage():
+def welcome():
     """List all available api routes."""
     return (
-        f"Available Routes:<br/>"
+        f"Let's go to Hawai:<br/>"
         f"/api/v1.0/precipitation"
         f"/api/v1.0/temp/<start>"
         f"/api/v1.0/stations"
@@ -98,15 +98,29 @@ def temperature():
     return jsonify(Results)
 
 
-@app.route(" /api/v1.0/<start>") AND (/api/v1.0/<start>/<end>)
-def summary_temperature():
-lowest_temp, highest_temp, avg_temp = results[0]
+@app.route(" /api/v1.0/<start>") 
 
+@app.route("/api/v1.0/<start>/<end>")
+
+def summary_temperature(start=None, end=None):
 
 # Create our session (link) from Python to the DB
-session = Session(engine)
+    session = Session(engine)
+#summary ?????/in this case I use de most activate
+results = session.query(func.min(measurement.tobs), func.max(measurement.tobs), func.avg(measurement.tobs)) \
+                .filter(measurement.station == "USC00519281") \
+                .all()
 
-return jsonify(Results)
+# Extract the results
+lowest_temp, highest_temp, avg_temp = results[0]
+
+print(f'Most Active Station ID: {"USC00519281"}')
+print(f'Lowest Temperature: {lowest_temp}')
+print(f'Highest Temperature: {highest_temp}')
+print(f'Average Temperature: {avg_temp}')
+         
+     session.close()
+    return jsonify(sum_tobs)
 
 if __name__ == '__main__':
     app.run(debug=True)
