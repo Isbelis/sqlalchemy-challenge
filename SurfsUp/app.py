@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import datetime as dt
+from datetime import datetime 
 #Python SQL toolkit and Ibject realtional mapper
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -21,6 +22,7 @@ engine = create_engine("sqlite:///Resources/hawaii.sqlite")
 
 # reflect an existing database into a new model
 Base = automap_base()
+
 
 # reflect the tables
 Base.prepare(autoload_with=engine)
@@ -74,16 +76,22 @@ def precipitation():
     year_ago = dt.date(2017,8,23) - dt.timedelta(days=365)
 
 # Perform a query to retrieve the data and precipitation scores
-    precipitation_scores = session.query(Measurement.date, Measurement.prcp).filter(Measurement.date >=year_ago)
+    precipitation_scores = session.query(Measurement.date, Measurement.prcp, Measurement.station).filter(Measurement.date >=year_ago)
 
 # Close the session
     session.close()
     
 # Convert the query results to a dictionary using date as the key and prcp as the value
-    precipitation_dict = {date: prcp for date, prcp in precipitation_scores}
+    precipitation_dict = {(date, station ): prcp for date, prcp, station in precipitation_scores}
+
+ # Convert the precipitation_dict into a list of dictionaries
+    precipitation_list = [{"Date": date,"Station":station, "Precipitation": prcp} for (date,station), prcp in precipitation_dict.items()]
+
+# Print the resulting list of dictionaries
+    print(precipitation_list)
 
 # Return the JSON representation of the dictionary
-    return jsonify(precipitation_dict)
+    return jsonify(precipitation_list)
 
 
 @app.route("/api/v1.0/stations")
@@ -91,14 +99,25 @@ def station():
  
  # Create session (link) from Python to the DB
  session = Session(engine)
+
  # Return a JSON list of stations from the dataset
-  # Query for all stations
+ # Query for all stations
+
  results = session.query(Station.station).all()
+
+ # Close the session
  session.close()
-    # Convert list of tuples into normal list
+
+ # Convert list of tuples into normal list
  station_list = list(np.ravel(results))
 
- return jsonify(station_list)
+ # Convert list of tuple into a list of dictionaries
+ station_dict_list = [{'station': station} for station in station_list]
+ 
+ # Print the list of dictionaries
+ print(station_dict_list)
+
+ return jsonify(station_dict_list)
  
 @app.route("/api/v1.0/tobs")
 def temperature():
@@ -136,30 +155,80 @@ def temperature():
  Results = session.query(Measurement.date, Measurement.tobs).filter(Measurement.station == most_active_station).\
            filter(Measurement.date >= year_ago).all()
 
+ # Close the session
+ session.close()
+
     # Convert list of tuples into normal list
  tobs_list = list(np.ravel(Results))
 
- return jsonify(tobs_list)
+ # Convert list of tuple into a list of dictionaries
+ keys = ['date', 'tobs']
+ tobs_dict_list = [dict(zip(keys, result)) for result in Results]
+
+# Print the list of dictionaries
+ print(tobs_dict_list)
+
+ return jsonify(tobs_dict_list)
+
 
 @app.route("/api/v1.0/<start>")
+def star_date_tobs (start):
+     # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+     # Convert start and end to datetime objects if they are provided
+    try:
+        start_date = dt.datetime.strptime(start, "%Y-%m-%d")
+    
+    except ValueError:
+        return jsonify({"error": "start date is required. Replace '<start>' with your preferred start date. The date format should be 'YYYY-MM-DD'."}), 400
+
+    # Define the query to calculate TMIN, TAVG, and TMAX
+    query = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+    results = session.query(*query).filter(Measurement.date >= start_date).all()
 
 
+    # Close the session
+    session.close()
 
+    # Convert the results to a list of dictionaries
+    temp_list = []
+    for result in results:
+        temp_dict = {
+            "TMIN": result[0],
+            "TAVG": result[1],
+            "TMAX": result[2]
+        }
+        temp_list.append(temp_dict)
+
+    return jsonify(temp_list)
 
 
 @app.route("/api/v1.0/<start>/<end>")
-def temperature_range(start=None, end=None):
+def temperature_range(start, end=None):
 
+     # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    # Convert start and end to datetime objects if they are provided
+    try:
+        start_date = dt.datetime.strptime(start, "%Y-%m-%d")
+        end_date = dt.datetime.strptime(end, "%Y-%m-%d") if end else None
+    except ValueError:
+        return jsonify({"error": "Both start and end dates are required. Replace '<start>/<end>' with your preferred date range. The date format should be 'YYYY-MM-DD/YYYY-MM-DD'."}), 400
 
     # Define the query to calculate TMIN, TAVG, and TMAX
     sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
 
-    if end:
-            # If an end date is provided, calculate for the date range
-        results = session.query(*sel).filter(Measurement.date >= start).filter(Measurement.date <= end).all()
+    if end_date:
+        # If an end date is provided, calculate for the date range
+        results = session.query(*sel).filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
     else:
         # If no end date is provided, calculate for dates greater than or equal to the start date
-        results = session.query(*sel).filter(Measurement.date >= start).all()
+        results = session.query(*sel).filter(Measurement.date >= start_date).all()
+
+    # Close the session
+    session.close()
 
     # Convert the results to a list of dictionaries
     temp_list = []
