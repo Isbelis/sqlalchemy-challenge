@@ -60,7 +60,7 @@ Provided routes for retrieving precipitation, station, and temperature data.
 - Functionality: Returns last 12 months of precipitation data as JSON.
 
 #### 3. Stations Route
-- Route: /api/v1.0/stations
+- Route: '/api/v1.0/stations'
 - Functionality: Returns JSON list of stations from the dataset.
 
 #### 4. Temperature Observations Route
