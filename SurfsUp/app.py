@@ -22,6 +22,7 @@ from flask import Flask, jsonify
 # Define the database connection URL
 # Adjust the path to match the actual location of your SQLite database file
 DATABASE_URL = "sqlite:///C:/Users/Isbelis/Documents/Bootcamp/Homework/sqlalchemy-challenge/SurfsUp/Resources/hawaii.sqlite"
+
 # create engine to hawaii.sqlite
 engine = create_engine(DATABASE_URL)
 
