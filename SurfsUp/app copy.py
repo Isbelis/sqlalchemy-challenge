@@ -8,7 +8,6 @@ import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, text, func
-from sqlalchemy.orm import sessionmaker
 #Import dependedencies to create app
 from flask import Flask, jsonify
 
@@ -50,7 +49,7 @@ def welcome():
 
     """List all available api routes."""
     return (
-        f"Welcome to the Climate Analysis API!<br/>"
+        f"Welcome to the Climate!<br/>"
         f"Available Routes:<br/>"
         f"<a href='/api/v1.0/precipitation'>/api/v1.0/precipitation</a><br/>"
         f"<a href='/api/v1.0/stations'>/api/v1.0/stations</a><br/>"
@@ -59,45 +58,63 @@ def welcome():
         f"<a href='/api/v1.0/<start>/<end>'>/api/v1.0/&lt;start&gt;/&lt;end&gt;</a><br/>"
     )
 
+        
+
 @app.route("/api/v1.0/precipitation")
 def precipitation():
 
 # Create session (link) from Python to the DB
-    session = Session(engine)
+ session = Session(engine)
 
 # Find the most recent date in the data set.
-    recent_date = "SELECT max(date) FROM measurement"
-    with engine.connect() as conn:
-     print(conn.execute(text(recent_date)).fetchall())
+ recent_date = "SELECT max(date) FROM measurement"
+ with engine.connect() as conn:
+    print(conn.execute(text(recent_date)).fetchall())
+ recent_date = dt.datetime.strptime(recent_date,'%Y-%m-%d')
 
 # Calculate the date one year from the last date in data set.
-    year_ago = dt.date(2017,8,23) - dt.timedelta(days=365)
+ year_ago = recent_date - dt.timedelta(days=365)
 
 # Perform a query to retrieve the data and precipitation scores
-    precipitation_scores = session.query(Measurement.date, Measurement.prcp).filter(Measurement.date >=year_ago)
+ precipitation_scores = session.query(Measurement.date,Measurement.prcp).\
+                        filter(Measurement.date >=year_ago).order_by(Measurement.date).\
+                        all()
+# Save the query results as a Pandas DataFrame. Explicitly set the column names
+ date_prcp_df = pd.DataFrame(precipitation_scores, columns=['Date', 'Station','Precipitation'])
 
+# Sort the dataframe by date
+ date_prcp_df ["Date"] = pd.to_datetime(date_prcp_df["Date"])
+
+ date_prcp_df = date_prcp_df.sort_values(by="Date", ascending=True).reset_index(drop=True)
 # Close the session
-    session.close()
+ session.close()
     
-# Convert the query results to a dictionary using date as the key and prcp as the value
-    precipitation_dict = {date: prcp for date, prcp in precipitation_scores}
+ prcp_df = pd.DataFrame(precipitation_scores)
+ precip_data = prcp_df.to_dict(orient="records")
+
+ return (jsonify(precip_data))
 
 # Return the JSON representation of the dictionary
-    return jsonify(precipitation_dict)
+
+ return jsonify(precipitation_list)
 
 
 @app.route("/api/v1.0/stations")
-def station():
- 
+def stations():
  # Create session (link) from Python to the DB
  session = Session(engine)
  # Return a JSON list of stations from the dataset
   # Query for all stations
- results = session.query(Station.station).all()
+ stations_results = session.query(Station.station).all()
+ 
  session.close()
     # Convert list of tuples into normal list
- station_list = list(np.ravel(results))
-
+ station_list = []
+ for station in stations:
+     station_dict = {}
+     station_dict["station name"]= tuple(station)
+     station_list.append(station_dict)
+     
  return jsonify(station_list)
  
 @app.route("/api/v1.0/tobs")
@@ -143,7 +160,7 @@ def temperature():
 
 @app.route("/api/v1.0/<start>")
 
-
+#specify  formatt
 
 
 
