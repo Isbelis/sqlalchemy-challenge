@@ -3,12 +3,12 @@
 import numpy as np
 import pandas as pd
 import datetime as dt
-
 #Python SQL toolkit and Ibject realtional mapper
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, text, func
+
 #Import dependedencies to create app
 from flask import Flask, jsonify
 
