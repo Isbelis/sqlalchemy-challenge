@@ -7,7 +7,9 @@ import datetime as dt
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, text, func
+
 
 #Import dependedencies to create app
 from flask import Flask, jsonify
@@ -16,8 +18,12 @@ from flask import Flask, jsonify
 # Database Setup
 #################################################
 
+
+# Define the database connection URL
+# Adjust the path to match the actual location of your SQLite database file
+DATABASE_URL = "sqlite:///C:/Users/Isbelis/Documents/Bootcamp/Homework/sqlalchemy-challenge/SurfsUp/Resources/hawaii.sqlite"
 # create engine to hawaii.sqlite
-engine = create_engine("sqlite:///Resources/hawaii.sqlite")
+engine = create_engine(DATABASE_URL)
 
 # reflect an existing database into a new model
 Base = automap_base()
