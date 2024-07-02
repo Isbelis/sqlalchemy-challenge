@@ -67,12 +67,10 @@ Provided routes for retrieving precipitation, station, and temperature data.
 - Route: '/api/v1.0/tobs'
 - Functionality: Returns temperature observations for the previous year from the most active station.
 
-#### 5. Temperature Start Date Route
-- Routes: "/api/v1.0/<start>"
+#### 5. Temperature Start and Start End Date Route
+- Routes: especific route for each point "start" and start end". 
 - Functionality: Returns minimum, average, and maximum temperatures for specified start date.
-#### 6. Temperature Start and End Date Route
-- Routes: "/api/v1.0/<start>/<end>"
-- Functionality: Returns minimum, average, and maximum temperatures for specified start-end range.
+
 
 ## Folder Structure
 ### SurfsUp/
