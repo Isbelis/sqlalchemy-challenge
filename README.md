@@ -68,10 +68,10 @@ Provided routes for retrieving precipitation, station, and temperature data.
 - Functionality: Returns temperature observations for the previous year from the most active station.
 
 #### 5. Temperature Start Date Route
-#####- Routes: '/api/v1.0/<start>'
+##### - Routes: "/api/v1.0/<start>"
 - Functionality: Returns minimum, average, and maximum temperatures for specified start date.
 #### 6. Temperature Start and End Date Route
-##### - Routes: '/api/v1.0/<start>/<end>'
+##### - Routes: "/api/v1.0/<start>/<end>"
 - Functionality: Returns minimum, average, and maximum temperatures for specified start-end range.
 
 ## Folder Structure
@@ -81,8 +81,8 @@ Provided routes for retrieving precipitation, station, and temperature data.
 2. 'app.py': Flask application for Part 2 API.
 #### folders
 ##### 1. "Resources/"
-    ###### - hawaii.sqlite: SQLite database containing climate data.
-    ###### - CSV files or other resources used in analysis.
+     - hawaii.sqlite: SQLite database containing climate data.
+     - CSV files or other resources used in analysis.
 ##### 2. "Output/"
     - Contains images and graphs generated during analysis and API demonstration.
 
