@@ -80,10 +80,10 @@ Provided routes for retrieving precipitation, station, and temperature data.
 1. 'climate_analysis.ipynb': Jupyter notebook for Part 1 analysis.
 2. 'app.py': Flask application for Part 2 API.
 #### folders
-1. "Resources/"
+##### 1. "Resources/"
     - hawaii.sqlite: SQLite database containing climate data.
     - CSV files or other resources used in analysis.
-2. "Output/"
+##### 2. "Output/"
     - Contains images and graphs generated during analysis and API demonstration.
 
 
